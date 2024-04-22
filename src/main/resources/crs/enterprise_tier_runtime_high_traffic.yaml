@@ -1,0 +1,15 @@
+apiVersion: dp.wso2.com/v1alpha1
+kind: RateLimitPolicy
+metadata:
+  name: enterprise-tier-runtime-high-traffic
+spec:
+  override:
+    custom:
+      key: enterprise_tier_run_time_high_traffic
+      requestsPerUnit: 15
+      unit: Minute
+      organization: default
+  targetRef:
+    kind: Gateway
+    name: default
+    group: gateway.networking.k8s.io

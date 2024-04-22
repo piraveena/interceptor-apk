@@ -3,6 +3,7 @@ package com.example.interceptorapk;
 import jakarta.servlet.http.HttpServletRequest;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +21,14 @@ import java.util.regex.Pattern;
 
 @RestController
 public class RequestHandlerService {
+    @Value("${config_traffic_apis}")
+    private String[] config_api;
+
+    @Value("${run_time_low_traffic_apis}")
+    private String[] run_time_low_traffic;
+
+    @Value("${run_time_high_traffic_apis}")
+    private String[] run_time_high_traffic;
 
     @PostMapping("/api/v1/handle-request")
     public ResponseEntity<?> handleRequest(HttpServletRequest req) throws IOException {
@@ -37,22 +46,14 @@ public class RequestHandlerService {
         }
         reader.close();
 
-        System.out.println("Request body: " + requestBody.toString());
-
         JSONObject jsonObject = (JSONObject) JSONValue.parse(requestBody.toString());
-
-        System.out.println("request path:"+ req.getContextPath().toString());
 
         JSONObject requestHeaders = (JSONObject)jsonObject.get("requestHeaders");
         String path = (String) requestHeaders.get(":path");
 
         String[] free_tier = {"carbon.super", "foo.com"};
-        String[] enterprise_tier = {"abc.com", "xyz.com"};
+        String[] enterprise_tier = {"abc.com"};
         String[] professional_tier = {"bar.com"};
-
-        String[] config_api = {"/api/server/v1/applications", "/api"};
-        String[] run_time_low_traffic = {"/scim2/Users"};
-        String[] run_time_high_traffic = {"/oauth2/token"};
 
         String tenantDomain = null;
         String apiPath = null;
@@ -86,7 +87,7 @@ public class RequestHandlerService {
             } else if (Arrays.asList(run_time_high_traffic).contains(apiPath)) {
                 res.put("professional_tier_run_time_high_traffic", key);
             } else if (Arrays.asList(config_api).contains(apiPath)) {
-                res.put("professional_tier_config", key);
+                res.put("professional_tier_config_traffic", key);
             }   else {
                 res.put("rateLimitKeys", "");
             }
@@ -96,7 +97,7 @@ public class RequestHandlerService {
             } else if (Arrays.asList(run_time_high_traffic).contains(apiPath)) {
                 res.put("enterprise_tier_run_time_high_traffic", key);
             } else if (Arrays.asList(config_api).contains(apiPath)) {
-                res.put("enterprise_tier_config", key);
+                res.put("enterprise_tier_config_traffic", key);
             } else {
                 res.put("rateLimitKeys", "");
             }

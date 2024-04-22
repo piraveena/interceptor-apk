@@ -1,0 +1,15 @@
+apiVersion: dp.wso2.com/v1alpha1
+kind: RateLimitPolicy
+metadata:
+  name: free-tier-config-traffic
+spec:
+  override:
+    custom:
+      key: free_tier_config_traffic
+      requestsPerUnit: 4
+      unit: Minute
+      organization: default
+  targetRef:
+    kind: Gateway
+    name: default
+    group: gateway.networking.k8s.io
