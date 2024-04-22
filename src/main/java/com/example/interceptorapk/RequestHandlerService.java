@@ -23,12 +23,17 @@ import java.util.regex.Pattern;
 public class RequestHandlerService {
     @Value("${config_traffic_apis}")
     private String[] config_api;
-
     @Value("${run_time_low_traffic_apis}")
     private String[] run_time_low_traffic;
-
     @Value("${run_time_high_traffic_apis}")
     private String[] run_time_high_traffic;
+
+    @Value("${free_tiers}")
+    String[] free_tier;
+    @Value("${enterprise_tiers}")
+    String[] enterprise_tier;
+    @Value("${professional_tiers}")
+    String[] professional_tier;
 
     @PostMapping("/api/v1/handle-request")
     public ResponseEntity<?> handleRequest(HttpServletRequest req) throws IOException {
@@ -47,13 +52,8 @@ public class RequestHandlerService {
         reader.close();
 
         JSONObject jsonObject = (JSONObject) JSONValue.parse(requestBody.toString());
-
         JSONObject requestHeaders = (JSONObject)jsonObject.get("requestHeaders");
         String path = (String) requestHeaders.get(":path");
-
-        String[] free_tier = {"carbon.super", "foo.com"};
-        String[] enterprise_tier = {"abc.com"};
-        String[] professional_tier = {"bar.com"};
 
         String tenantDomain = null;
         String apiPath = null;
@@ -66,8 +66,6 @@ public class RequestHandlerService {
         }
 
         String key = tenantDomain + ":" + apiPath; // foo.com:/scim2/Users
-        System.out.println("key: " + key);
-
         Map<String, String> res = new HashMap<>();
         JSONObject rateLimitKeys = new JSONObject();
 
